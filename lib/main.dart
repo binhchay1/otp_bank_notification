@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,63 +9,58 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: DeviceMessageScreen(),
+      home: OtpScreen(),
     );
   }
 }
 
-class DeviceMessageScreen extends StatefulWidget {
+class OtpScreen extends StatefulWidget {
   @override
-  // ignore: library_private_types_in_public_api
-  _DeviceMessageScreenState createState() => _DeviceMessageScreenState();
+  _OtpScreenState createState() => _OtpScreenState();
 }
 
-class _DeviceMessageScreenState extends State<DeviceMessageScreen> {
-  String _deviceInfo = 'Unknown';
-  String _connectivityStatus = 'Unknown';
+class _OtpScreenState extends State<OtpScreen> with CodeAutoFill {
+  String _otpCode = '';
 
   @override
   void initState() {
     super.initState();
-    _getDeviceInfo();
-    _getConnectivityStatus();
+    listenForCode();
   }
 
-  Future<void> _getDeviceInfo() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    var androidInfo = await deviceInfo.androidInfo;
-
+  @override
+  void codeUpdated() {
     setState(() {
-      _deviceInfo = 'Android Device: ${androidInfo.model}';
+      _otpCode = code!;
     });
   }
 
-  Future<void> _getConnectivityStatus() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-
-    setState(() {
-      if (connectivityResult == ConnectivityResult.mobile) {
-        _connectivityStatus = 'Connected to Mobile Network';
-      } else if (connectivityResult == ConnectivityResult.wifi) {
-        _connectivityStatus = 'Connected to WiFi';
-      } else {
-        _connectivityStatus = 'No Internet Connection';
-      }
-    });
+  @override
+  void dispose() {
+    cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Device Messages'),
+        title: Text('OTP Autofill'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('Device Info: $_deviceInfo'),
-            Text('Connectivity Status: $_connectivityStatus'),
+          children: [
+            PinFieldAutoFill(
+              codeLength: 6,
+              onCodeChanged: (code) {
+                setState(() {
+                  _otpCode = code ?? '';
+                });
+              },
+            ),
+            SizedBox(height: 20),
+            Text('Current OTP: $_otpCode'),
           ],
         ),
       ),

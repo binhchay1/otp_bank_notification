@@ -1,6 +1,24 @@
 {
     "cSpell.words": [
+        "appname",
         "cupertino",
-        "subprojects"
-    ]
+        "cygpath",
+        "CYGPATTERN",
+        "Dorg",
+        "endlocal",
+        "ERRORLEVEL",
+        "icns",
+        "JAVACMD",
+        "jvmargs",
+        "Metaspace",
+        "msys",
+        "OURCYGPATTERN",
+        "ROOTDIRS",
+        "ROOTDIRSRAW",
+        "setlocal",
+        "subprojects",
+        "Windowz",
+        "Xdock"
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
