@@ -1,61 +1,72 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        ),
-        home: MyHomePage(),
-      ),
+    return MaterialApp(
+      home: DeviceMessageScreen(),
     );
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
+class DeviceMessageScreen extends StatefulWidget {
+  @override
+  // ignore: library_private_types_in_public_api
+  _DeviceMessageScreenState createState() => _DeviceMessageScreenState();
 }
 
-class MyHomePage extends StatelessWidget {
+class _DeviceMessageScreenState extends State<DeviceMessageScreen> {
+  String _deviceInfo = 'Unknown';
+  String _connectivityStatus = 'Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    _getDeviceInfo();
+    _getConnectivityStatus();
+  }
+
+  Future<void> _getDeviceInfo() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    var androidInfo = await deviceInfo.androidInfo;
+
+    setState(() {
+      _deviceInfo = 'Android Device: ${androidInfo.model}';
+    });
+  }
+
+  Future<void> _getConnectivityStatus() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+
+    setState(() {
+      if (connectivityResult == ConnectivityResult.mobile) {
+        _connectivityStatus = 'Connected to Mobile Network';
+      } else if (connectivityResult == ConnectivityResult.wifi) {
+        _connectivityStatus = 'Connected to WiFi';
+      } else {
+        _connectivityStatus = 'No Internet Connection';
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Namer App'),
+        title: Text('Device Messages'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(pair.asPascalCase),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                appState.getNext();
-              },
-              child: Text('Next'),
-            ),
+          children: <Widget>[
+            Text('Device Info: $_deviceInfo'),
+            Text('Connectivity Status: $_connectivityStatus'),
           ],
         ),
       ),
